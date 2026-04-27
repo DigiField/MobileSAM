@@ -138,6 +138,10 @@ def build_efficientvit_l2_encoder(checkpoint=None):
     checkpoints = torch.load(checkpoint)
     checkpoint = checkpoints["state_dict"]
     new_state_dict = {}
+
+    # Load only the image encoder weights by stripping the checkpoint prefix
+    # used in the full EfficientViT-SAM training state dict.
+
     if checkpoint!=None:
         for key, value in checkpoint.items():
             index = key.find("image_encoder.")

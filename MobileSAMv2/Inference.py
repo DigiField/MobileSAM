@@ -23,6 +23,10 @@ def parse_args():
     parser.add_argument("--output_dir", type=str, default="./", help="image save path")
     parser.add_argument("--encoder_type", choices=['tiny_vit','sam_vit_h','mobile_sam','efficientvit_l2','efficientvit_l1','efficientvit_l0'], help="choose the model type")
     return parser.parse_args()
+
+# Build the base SAM model first, then replace its prompt/mask decoders
+# with the prompt-guided components used by MobileSAMv2.
+
 def create_model():
     Prompt_guided_path='./PromptGuidedDecoder/Prompt_guided_Mask_Decoder.pt'
     obj_model_path='./weight/ObjectAwareModel.pt'
