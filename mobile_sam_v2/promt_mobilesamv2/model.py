@@ -1,14 +1,14 @@
-from ultralytics.yolo.cfg import get_cfg
-from ultralytics.yolo.engine.exporter import Exporter
-from ultralytics.yolo.engine.model import YOLO
-from ultralytics.yolo.utils import DEFAULT_CFG, LOGGER, ROOT, is_git_dir
+from mobile_sam_v2.ultralytics.yolo.cfg import get_cfg
+from mobile_sam_v2.ultralytics.yolo.engine.exporter import Exporter
+from mobile_sam_v2.ultralytics.yolo.engine.model import YOLO
+from mobile_sam_v2.ultralytics.yolo.utils import DEFAULT_CFG, LOGGER, ROOT, is_git_dir
 
-from ultralytics.yolo.utils.torch_utils import model_info, smart_inference_mode
+from mobile_sam_v2.ultralytics.yolo.utils.torch_utils import model_info, smart_inference_mode
 from .predict import PromptModelPredictor
 
 
 class ObjectAwareModel(YOLO):
-    
+
     @smart_inference_mode()
     def predict(self, source=None, stream=False, **kwargs):
         """
@@ -34,11 +34,11 @@ class ObjectAwareModel(YOLO):
         assert overrides['mode'] in ['track', 'predict']
         overrides['save'] = kwargs.get('save', False)  # do not save by default if called in Python
         self.predictor = PromptModelPredictor(overrides=overrides)
-          
+
         self.predictor.setup_model(model=self.model, verbose=False)
-       
+
         try:
-              
+
             return self.predictor(source, stream=stream)
         except Exception as e:
             return None
