@@ -7,7 +7,7 @@
 import numpy as np
 import torch
 
-from mobilesamv2.modeling import Sam
+from mobile_sam_v2.modeling import Sam
 
 from typing import Optional, Tuple
 
@@ -90,9 +90,9 @@ class SamPredictor:
         # cc = time.time()
         # print(cc-aa, ',')
         # import pdb;pdb.set_trace()
-        
-        
-        
+
+
+
         self.is_image_set = True
 
     def predict(
@@ -169,8 +169,8 @@ class SamPredictor:
         # cc = time.time()
         # print('decoder_time:', cc-aa)
         # import pdb; pdb.set_trace()
-        
-        
+
+
         masks_np = masks[0].detach().cpu().numpy()
         iou_predictions_np = iou_predictions[0].detach().cpu().numpy()
         low_res_masks_np = low_res_masks[0].detach().cpu().numpy()
@@ -226,7 +226,7 @@ class SamPredictor:
             points = (point_coords, point_labels)
         else:
             points = None
-       
+
         # Embed prompts
         # import pdb;pdb.set_trace()
         sparse_embeddings, dense_embeddings = self.model.prompt_encoder(
@@ -281,7 +281,7 @@ class SamPredictor:
         self.orig_w = None
         self.input_h = None
         self.input_w = None
-###################################################################################   han_change        
+###################################################################################   han_change
     def set_image_AddAverage(
         self,
         image: np.ndarray,
@@ -343,7 +343,7 @@ class SamPredictor:
         #self.features=torch.from_numpy(ppp).to(device=self.device)
         #features = np.load(join('./data','features','sa_227195.npy'))
         #array = self.features.cpu().numpy()
-        #np.save(self.featurename[0], array) 
+        #np.save(self.featurename[0], array)
         self.is_image_set = True
         #eturn 0
 

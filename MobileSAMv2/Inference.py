@@ -5,8 +5,8 @@ from PIL import Image
 import cv2
 import os
 import sys
-from mobilesamv2.promt_mobilesamv2 import ObjectAwareModel
-from mobilesamv2 import sam_model_registry, SamPredictor
+from mobile_sam_v2.promt_mobilesamv2 import ObjectAwareModel
+from mobile_sam_v2 import sam_model_registry, SamPredictor
 from typing import Any, Dict, Generator,List
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,7 +36,7 @@ def create_model():
     mobilesamv2.prompt_encoder=PromptGuidedDecoder['PromtEncoder']
     mobilesamv2.mask_decoder=PromptGuidedDecoder['MaskDecoder']
     return mobilesamv2,ObjAwareModel
-    
+
 def show_anns(anns):
     if len(anns) == 0:
         return
@@ -65,7 +65,7 @@ encoder_path={'efficientvit_l2':'./weight/l2.pt',
 
 def main(args):
     # import pdb;pdb.set_trace()
-    output_dir=args.output_dir  
+    output_dir=args.output_dir
     mobilesamv2, ObjAwareModel=create_model()
     image_encoder=sam_model_registry[args.encoder_type](encoder_path[args.encoder_type])
     mobilesamv2.image_encoder=image_encoder
@@ -118,8 +118,8 @@ def main(args):
         plt.imshow(background)
         show_anns(show_img)
         plt.axis('off')
-        plt.show() 
-        plt.savefig("{}".format(output_dir+image_name), bbox_inches='tight', pad_inches = 0.0) 
+        plt.show()
+        plt.savefig("{}".format(output_dir+image_name), bbox_inches='tight', pad_inches = 0.0)
 
 if __name__ == "__main__":
     args = parse_args()
