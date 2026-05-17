@@ -8,8 +8,8 @@ from setuptools import find_packages, setup
 
 setup(
     name="mobile_sam",
-    version="1.1",
-    install_requires=["torchpack", "onnx", "onnxsim"],
+    version="1.0+f2",
+    install_requires=["torchpack", "onnx", "onnxsim", "cv2"],
     packages=find_packages(exclude="notebooks"),
     extras_require={
         "all": ["matplotlib", "pycocotools", "opencv-python", "onnx", "onnxruntime"],
