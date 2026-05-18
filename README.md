@@ -149,12 +149,12 @@ mask_generator = SamAutomaticMaskGenerator(mobile_sam)
 masks = mask_generator.generate(<your_image>)
 ```
 ## <a name="GettingStarted"></a>Getting Started (MobileSAMv2)
-Download the model weights from the [checkpoints](https://drive.google.com/file/d/1dE-YAG-1mFCBmao2rHDp0n-PP4eH7SjE/view?usp=sharing).
+Download the model weights from the [checkpoints](https://drive.google.com/file/d/1dE-YAG-1mFCBmao2rHDp0n-PP4eH7SjE/view?usp=sharing) and extract them to `weight/`.
 
 After downloading the model weights, faster SegEvery with MobileSAMv2 can be simply used as follows:
 ```
 cd MobileSAMv2
-bash ./experiments/mobilesamv2.sh
+bash ./mobilesamv2.sh
 ```
 ## ONNX Export
 **MobileSAM** now supports ONNX export. Export the model with
@@ -213,7 +213,3 @@ This work was supported by Institute of Information & communications Technology 
   year={2022}
 ```
 </details>
-
-
-
-
