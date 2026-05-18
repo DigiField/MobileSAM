@@ -11,6 +11,8 @@ setup(
     version="1.0+f2",
     install_requires=["torchpack", "onnx", "onnxsim", "opencv-python"],
     packages=find_packages(exclude="notebooks"),
+    package_data={'mobile_sam_v2': ['ultralytics/*/cfg/*.yaml', 'ultralytics/models/*/*.yaml']},
+    include_package_data=True,
     extras_require={
         "all": ["matplotlib", "pycocotools", "opencv-python", "onnx", "onnxruntime"],
         "dev": ["flake8", "isort", "black", "mypy"],
