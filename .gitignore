@@ -6,3 +6,5 @@ __py
 *.egg-info
 build/
 .DS_Store
+weights/
+MobileSAMv2/weight
