@@ -498,7 +498,7 @@ class Ensemble(nn.ModuleList):
 # Functions ------------------------------------------------------------------------------------------------------------
 
 
-def torch_safe_load(weight):
+def torch_safe_load(weight, weights_only=True):
     """
     This function attempts to load a PyTorch model with the torch.load() function. If a ModuleNotFoundError is raised,
     it catches the error, logs a warning message, and attempts to install the missing module via the
@@ -506,6 +506,7 @@ def torch_safe_load(weight):
 
     Args:
         weight (str): The file path of the PyTorch model.
+        weights_only (bool): Whether to load it in weights only mode (default: True)
 
     Returns:
         (dict): The loaded PyTorch model.
@@ -515,7 +516,7 @@ def torch_safe_load(weight):
     check_suffix(file=weight, suffix='.pt')
     file = attempt_download_asset(weight)  # search online if missing locally
     try:
-        return torch.load(file, map_location='cpu'), file  # load
+        return torch.load(file, map_location='cpu', weights_only=weights_only), file  # load
     except ModuleNotFoundError as e:  # e.name is missing module name
         if e.name == 'models':
             raise TypeError(
@@ -573,9 +574,9 @@ def attempt_load_weights(weights, device=None, inplace=True, fuse=False):
     return ensemble
 
 
-def attempt_load_one_weight(weight, device=None, inplace=True, fuse=False):
+def attempt_load_one_weight(weight, device=None, inplace=True, fuse=False, weights_only=True):
     """Loads a single model weights."""
-    ckpt, weight = torch_safe_load(weight)  # load ckpt
+    ckpt, weight = torch_safe_load(weight, weights_only)  # load ckpt
     args = {**DEFAULT_CFG_DICT, **(ckpt.get('train_args', {}))}  # combine model and default args, preferring model args
     model = (ckpt.get('ema') or ckpt['model']).to(device).float()  # FP32 model
 
