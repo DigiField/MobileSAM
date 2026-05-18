@@ -153,7 +153,7 @@ class YOLO:
         """
         suffix = Path(weights).suffix
         if suffix == '.pt':
-            self.model, self.ckpt = attempt_load_one_weight(weights)
+            self.model, self.ckpt = attempt_load_one_weight(weights, weights_only=False)
             self.task = self.model.args['task']
             self.overrides = self.model.args = self._reset_ckpt_args(self.model.args)
             self.ckpt_path = self.model.pt_path
