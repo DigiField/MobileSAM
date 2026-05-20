@@ -1,9 +1,9 @@
-from mobile_sam_v2.ultralytics.yolo.cfg import get_cfg
-from mobile_sam_v2.ultralytics.yolo.engine.exporter import Exporter
-from mobile_sam_v2.ultralytics.yolo.engine.model import YOLO
-from mobile_sam_v2.ultralytics.yolo.utils import DEFAULT_CFG, LOGGER, ROOT, is_git_dir
+from ultralytics.yolo.cfg import get_cfg
+from ultralytics.yolo.engine.exporter import Exporter
+from ultralytics.yolo.engine.model import YOLO
+from ultralytics.yolo.utils import DEFAULT_CFG, LOGGER, ROOT, is_git_dir
 
-from mobile_sam_v2.ultralytics.yolo.utils.torch_utils import model_info, smart_inference_mode
+from ultralytics.yolo.utils.torch_utils import model_info, smart_inference_mode
 from .predict import PromptModelPredictor
 
 

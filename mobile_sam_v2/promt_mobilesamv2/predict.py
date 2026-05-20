@@ -1,7 +1,7 @@
 import torch
-from mobile_sam_v2.ultralytics.yolo.engine.results import Results
-from mobile_sam_v2.ultralytics.yolo.utils import DEFAULT_CFG, ops
-from mobile_sam_v2.ultralytics.yolo.v8.detect.predict import DetectionPredictor
+from ultralytics.yolo.engine.results import Results
+from ultralytics.yolo.utils import DEFAULT_CFG, ops
+from ultralytics.yolo.v8.detect.predict import DetectionPredictor
 
 class PromptModelPredictor(DetectionPredictor):
 
