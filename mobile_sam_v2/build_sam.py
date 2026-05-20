@@ -112,7 +112,7 @@ def build_sam_vit_t_encoder(checkpoint: str | None = None):
     if checkpoint is not None:
         with open(checkpoint, "rb") as f:
             state_dict = torch.load(f)
-        mobile_sam.load_state_dict(state_dict['model'],strict=False)
+        mobile_sam.load_state_dict(state_dict,strict=False)
     return mobile_sam
 
 def build_efficientvit_l2_encoder(checkpoint=None):
