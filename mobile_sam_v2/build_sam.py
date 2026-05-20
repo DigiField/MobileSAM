@@ -5,9 +5,9 @@
 # LICENSE file in the root directory of this source tree.
 
 import torch
-import torch.nn as nn
 
 from functools import partial
+from typing import Callable
 
 from .modeling import ImageEncoderViT, MaskDecoder, PromptEncoder, Sam, TwoWayTransformer
 from .tinyvit import TinyViT#11000
@@ -60,7 +60,7 @@ def _build_sam(
             embed_dim=encoder_embed_dim,
             img_size=image_size,
             mlp_ratio=4,
-            norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
+            norm_layer=partial(torch.nn.LayerNorm, eps=1e-6), # type: ignore[reportArgumentType]
             num_heads=encoder_num_heads,
             patch_size=vit_patch_size,
             qkv_bias=True,
@@ -96,7 +96,7 @@ def _build_sam(
             state_dict = torch.load(f)
         sam.load_state_dict(state_dict,strict=False)
     return sam
-def build_sam_vit_t_encoder(checkpoint=None):
+def build_sam_vit_t_encoder(checkpoint: str | None = None):
     mobile_sam =TinyViT(img_size=1024, in_chans=3, num_classes=1000,
                 embed_dims=[64, 128, 160, 320],
                 depths=[2, 2, 6, 2],
@@ -135,7 +135,7 @@ def build_efficientvit_l2_encoder(checkpoint=None):
     )
     image_encoder = EfficientViTSamImageEncoder(backbone, neck)
     set_norm_eps(image_encoder, 1e-6)
-    checkpoints = torch.load(checkpoint)
+    checkpoints = torch.load(checkpoint) # type: ignore[reportArgumentType]
     checkpoint = checkpoints["state_dict"]
     new_state_dict = {}
 
@@ -155,7 +155,7 @@ def build_efficientvit_l2_encoder(checkpoint=None):
     return image_encoder
 
 
-def build_sam_vit_h_encoder(checkpoint=None):
+def build_sam_vit_h_encoder(checkpoint: str | None = None):
     prompt_embed_dim = 256
     image_size = 1024
     vit_patch_size = 16
@@ -168,12 +168,12 @@ def build_sam_vit_h_encoder(checkpoint=None):
             embed_dim=encoder_embed_dim,
             img_size=image_size,
             mlp_ratio=4,
-            norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
+            norm_layer=partial(torch.nn.LayerNorm, eps=1e-6), # type: ignore[reportArgumentType]
             num_heads=encoder_num_heads,
             patch_size=vit_patch_size,
             qkv_bias=True,
             use_rel_pos=True,
-            global_attn_indexes=encoder_global_attn_indexes,
+            global_attn_indexes=encoder_global_attn_indexes, # type: ignore[reportArgumentType]
             window_size=14,
             out_chans=prompt_embed_dim,
         )
@@ -183,7 +183,7 @@ def build_sam_vit_h_encoder(checkpoint=None):
         image_encoder.load_state_dict(state_dict,strict=True)
     return image_encoder
 
-def build_PromptGuidedDecoder(checkpoint=None):
+def build_PromptGuidedDecoder(checkpoint: str | None = None):
     prompt_embed_dim = 256
     image_size = 1024
     vit_patch_size = 16
@@ -215,7 +215,7 @@ def build_PromptGuidedDecoder(checkpoint=None):
         mask_decoder.load_state_dict(mask_dict)
     return {'PromtEncoder':prompt_encoder,'MaskDecoder':mask_decoder}
 
-sam_model_registry = {
+sam_model_registry: dict[str, Callable[[str | None], Sam | EfficientViTSamImageEncoder | TinyViT | dict[str, PromptEncoder | MaskDecoder] | ImageEncoderViT]] = {
     "default": build_sam_vit_h,
     "vit_h": build_sam_vit_h,
     "vit_l": build_sam_vit_l,
