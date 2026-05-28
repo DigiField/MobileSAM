@@ -1,0 +1,126 @@
+diff --git a/ultralytics/nn/modules/head.py b/ultralytics/nn/modules/head.py
+index 8b55fd0..24d44a5 100644
+--- a/ultralytics/nn/modules/head.py
++++ b/ultralytics/nn/modules/head.py
+@@ -31,7 +31,7 @@ class Detect(nn.Module):
+         super().__init__()
+         self.nc = nc  # number of classes
+         self.nl = len(ch)  # number of detection layers
+-        self.reg_max = 16  # DFL channels (ch[0] // 16 to scale 4/8/12/16/20 for n/s/m/l/x)
++        self.reg_max = 26  # DFL channels (ch[0] // 16 to scale 4/8/12/16/20 for n/s/m/l/x)
+         self.no = nc + self.reg_max * 4  # number of outputs per anchor
+         self.stride = torch.zeros(self.nl)  # strides computed during build
+         c2, c3 = max((16, ch[0] // 4, self.reg_max * 4)), max(ch[0], self.nc)  # channels
+@@ -79,7 +79,7 @@ class Segment(Detect):
+         super().__init__(nc, ch)
+         self.nm = nm  # number of masks
+         self.npr = npr  # number of protos
+-        self.proto = Proto(ch[0], self.npr, self.nm)  # protos
++        #self.proto = Proto(ch[0], self.npr, self.nm)  # protos
+         self.detect = Detect.forward
+ 
+         c4 = max(ch[0] // 4, self.nm)
+@@ -87,8 +87,10 @@ class Segment(Detect):
+ 
+     def forward(self, x):
+         """Return model outputs and mask coefficients if training, otherwise return outputs and mask coefficients."""
+-        p = self.proto(x[0])  # mask protos
+-        bs = p.shape[0]  # batch size
++        #p = self.proto(x[0])  # mask protos #mobilesamv2 change
++        p=0
++        # import pdb;pdb.set_trace()
++        bs = x[0].shape[0]  # batch size
+ 
+         mc = torch.cat([self.cv4[i](x[i]).view(bs, self.nm, -1) for i in range(self.nl)], 2)  # mask coefficients
+         x = self.detect(self, x)
+diff --git a/ultralytics/yolo/cfg/default.yaml b/ultralytics/yolo/cfg/default.yaml
+index 960b2fa..8645f34 100644
+--- a/ultralytics/yolo/cfg/default.yaml
++++ b/ultralytics/yolo/cfg/default.yaml
+@@ -33,7 +33,7 @@ amp: True  # (bool) Automatic Mixed Precision (AMP) training, choices=[True, Fal
+ fraction: 1.0  # (float) dataset fraction to train on (default is 1.0, all images in train set)
+ profile: False  # (bool) profile ONNX and TensorRT speeds during training for loggers
+ # Segmentation
+-overlap_mask: True  # (bool) masks should overlap during training (segment train only)
++overlap_mask: False  # (bool) masks should overlap during training (segment train only)
+ mask_ratio: 4  # (int) mask downsample ratio (segment train only)
+ # Classification
+ dropout: 0.0  # (float) use dropout regularization (classify train only)
+diff --git a/ultralytics/yolo/engine/validator.py b/ultralytics/yolo/engine/validator.py
+index f84c8d0..300eab9 100644
+--- a/ultralytics/yolo/engine/validator.py
++++ b/ultralytics/yolo/engine/validator.py
+@@ -157,23 +157,33 @@ class BaseValidator:
+ 
+             # Inference
+             with dt[1]:
+-                preds = model(batch['img'], augment=self.args.augment)
++                preds = model(batch['img'])
+ 
+             # Loss
+             with dt[2]:
+                 if self.training:
+-                    self.loss += model.loss(batch, preds)[1]
++                    self.loss += trainer.criterion(preds, batch)[1]
+ 
+             # Postprocess
+             with dt[3]:
+                 preds = self.postprocess(preds)
+-
+-            self.update_metrics(preds, batch)
++            # import pdb;pdb.set_trace()
++            try:
++                self.update_metrics(preds, batch)
++            except:
++                with open('wrong_file_1.txt', 'a') as f:
++                    f.write(str(batch['im_file']))
++                    f.write('\n')
++                # continue
+             if self.args.plots and batch_i < 3:
+                 self.plot_val_samples(batch, batch_i)
+                 self.plot_predictions(batch, preds, batch_i)
+-
++            # print(self.args.save_json, self.jdict)
+             self.run_callbacks('on_val_batch_end')
++            # if self.args.save_json and self.jdict:
++            #     with open(str(self.save_dir / 'tmp_predictions.json'), 'w') as f:
++            #         # LOGGER.info(f'Saving {f.name}...')
++            #         json.dump(self.jdict, f)  # flatten and save
+         stats = self.get_stats()
+         self.check_stats(stats)
+         self.speed = dict(zip(self.speed.keys(), (x.t / len(self.dataloader.dataset) * 1E3 for x in dt)))
+@@ -187,6 +197,7 @@ class BaseValidator:
+         else:
+             LOGGER.info('Speed: %.1fms preprocess, %.1fms inference, %.1fms loss, %.1fms postprocess per image' %
+                         tuple(self.speed.values()))
++            
+             if self.args.save_json and self.jdict:
+                 with open(str(self.save_dir / 'predictions.json'), 'w') as f:
+                     LOGGER.info(f'Saving {f.name}...')
+@@ -196,6 +207,7 @@ class BaseValidator:
+                 LOGGER.info(f"Results saved to {colorstr('bold', self.save_dir)}")
+             return stats
+ 
++
+     def add_callback(self, event: str, callback):
+         """Appends the given callback."""
+         self.callbacks[event].append(callback)
+diff --git a/ultralytics/yolo/utils/ops.py b/ultralytics/yolo/utils/ops.py
+index b998df4..6270ca6 100644
+--- a/ultralytics/yolo/utils/ops.py
++++ b/ultralytics/yolo/utils/ops.py
+@@ -335,7 +335,13 @@ def scale_image(masks, im0_shape, ratio_pad=None):
+     # masks = masks.permute(2, 0, 1).contiguous()
+     # masks = F.interpolate(masks[None], im0_shape[:2], mode='bilinear', align_corners=False)[0]
+     # masks = masks.permute(1, 2, 0).contiguous()
+-    masks = cv2.resize(masks, (im0_shape[1], im0_shape[0]))
++    cv_limit = 512
++    if masks.shape[2] <= cv_limit:
++        masks = cv2.resize(masks, (im0_shape[1], im0_shape[0]))
++    else:
++        # split masks array on batches with max size 512 along channel axis, resize and merge them back
++        masks = np.concatenate([cv2.resize(masks[:, :, i:min(i + cv_limit, masks.shape[2])], (im0_shape[1], im0_shape[0]))
++                                for i in range(0, masks.shape[2], cv_limit)], axis=2)
+     if len(masks.shape) == 2:
+         masks = masks[:, :, None]
+ 
