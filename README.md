@@ -16,7 +16,7 @@ from mobile_sam_v2 import sam_model_registry, SamPredictor
 # ...
 ```
 
-When using this version of MobileSAM please credit both DigiField (https://digifield.tech), which modified the code, and Chaoning Zhang (https://github.com/ChaoningZhang), the author of MobileSAM, in your application.
+When using this version of MobileSAM in an application please credit both DigiField (https://digifield.tech), which modified the code, and the authors of MobileSAM: Chaoning Zhang (https://github.com/ChaoningZhang) and Choong Seon Hong (https://github.com/choongseon).
 
 ----
 
